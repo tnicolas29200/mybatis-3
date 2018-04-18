@@ -394,7 +394,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
   private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
     final ResultLoaderMap lazyLoader = new ResultLoaderMap();
     Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);
-    if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
+    if (rowValue != null /*&& !hasTypeHandlerForResultObject(rsw, resultMap.getType())*/) {
       final MetaObject metaObject = configuration.newMetaObject(rowValue);
       boolean foundValues = this.useConstructorMappings;
       if (shouldApplyAutomaticMappings(resultMap, false)) {

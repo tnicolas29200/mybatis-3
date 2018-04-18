@@ -117,11 +117,14 @@ public class Jdbc3KeyGenerator implements KeyGenerator {
     TypeHandler<?>[] typeHandlers = new TypeHandler<?>[keyProperties.length];
     for (int i = 0; i < keyProperties.length; i++) {
       if (metaParam.hasSetter(keyProperties[i])) {
-        Class<?> keyPropertyType = metaParam.getSetterType(keyProperties[i]);
-        typeHandlers[i] = typeHandlerRegistry.getTypeHandler(keyPropertyType, JdbcType.forCode(rsmd.getColumnType(i + 1)));
-      } else {
-        throw new ExecutorException("No setter found for the keyProperty '" + keyProperties[i] + "' in '"
-            + metaParam.getOriginalObject().getClass().getName() + "'.");
+        TypeHandler<?> th;
+        try {
+          Class<?> keyPropertyType = metaParam.getSetterType(keyProperties[i]);
+          th = typeHandlerRegistry.getTypeHandler(keyPropertyType, JdbcType.forCode(rsmd.getColumnType(i + 1)));
+        } catch (BindingException e) {
+          th = null;
+        }
+        typeHandlers[i] = th;
       }
     }
     return typeHandlers;

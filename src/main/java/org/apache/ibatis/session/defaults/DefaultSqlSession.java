@@ -75,10 +75,10 @@ public class DefaultSqlSession implements SqlSession {
   public <T> T selectOne(String statement, Object parameter) {
     // Popular vote was to return null on 0 results and throw exception on too many.
     List<T> list = this.<T>selectList(statement, parameter);
-    if (list.size() == 1) {
+    if (list.size() >= 1) {
       return list.get(0);
-    } else if (list.size() > 1) {
-      throw new TooManyResultsException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
+    //} else if (list.size() > 1) {
+    //  throw new TooManyResultsException("Expected one result (or null) to be returned by selectOne(), but found: " + list.size());
     } else {
       return null;
     }
@@ -325,7 +325,22 @@ public class DefaultSqlSession implements SqlSession {
         map.put("list", object);
       }
       return map;
-    } else if (object != null && object.getClass().isArray()) {
+    } else if (object instanceof Map) {
+			Map<String, Object> mapTmp = (Map<String, Object>) object;
+			StrictMap<Object> map = new StrictMap<Object>();
+			for (String key : mapTmp.keySet()) {
+				boolean found = false;
+				for (int i = 0; i < mapTmp.keySet().size(); i++) {
+					if (("param" + i).equals(key)) {
+						found = true;
+					}
+				}
+				if (!found) {
+					map.put(key, mapTmp.get(key));
+				}
+			}
+			return map;
+	} else if (object != null && object.getClass().isArray()) {
       StrictMap<Object> map = new StrictMap<Object>();
       map.put("array", object);
       return map;
